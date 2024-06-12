@@ -6,8 +6,8 @@ The `ejbca` UpstreamAuthority plugin uses a connected [EJBCA](https://www.ejbca.
 
 ## Requirements
 
-* EJBCA [Community](https://www.ejbca.org/) or EJBCA [Enterprise](https://www.keyfactor.com/products/ejbca-enterprise/) 
-    * The "REST Certificate Management" protocol must be enabled under System Configuration > Protocol Configuration.
+* EJBCA [Community](https://www.ejbca.org/) or EJBCA [Enterprise](https://www.keyfactor.com/products/ejbca-enterprise/)
+  * The "REST Certificate Management" protocol must be enabled under System Configuration > Protocol Configuration.
 
 > EJBCA Enterprise is required for the OAuth 2.0 "client credentials" token flow. EJBCA Community only supports mTLS (client certificate) authentication.
 
@@ -44,16 +44,8 @@ UpstreamAuthority "ejbca" {
     plugin_data {
         hostname = "ejbca.example.com"
         cert_auth {
-            client_cert = <<EOF
------BEGIN CERTIFICATE-----
-MIIDE ... mn+GJf
------END CERTIFICATE-----
-EOF
-            client_key = <<EOF
------BEGIN PRIVATE KEY-----
-MIIEv ... 3Q==
------END PRIVATE KEY-----
-EOF
+            client_cert_path = "/path/to/client_cert.pem"
+            client_key_path = "/path/to/client_key.pem"
         }
         ca_name = "Fake-Sub-CA"
         end_entity_profile_name = "fakeSpireIntermediateCAEEP"
@@ -112,11 +104,13 @@ EOF
 The connected EJBCA instance must have at least one Certificate Profile and at least one End Entity Profile capable of issuing SPIFFE certificates. The Certificate Profile must be of type `Sub CA`, and must be able to issue certificates with the ECDSA prime256v1 algorithm, at a minimum. The SPIRE Server configuration may require additional fields.
 
 The End Entity Profile must have the following Subject DN Attributes:
+
 * `serialNumber, Serial number (in DN)` [modifiable]
 * `O, Organization` [modifiable]
 * `C, Country (ISO 3166)` [modifiable]
 
 And the following Other Subject Attributes:
+
 * `Uniform Resource Identifier (URI)` [modifiable]
 
 ## EJBCA End Entity Name Customization
@@ -137,5 +131,4 @@ If the endEntityName field is not explicitly set, the EJBCA UpstreamAuthority pl
 * **If the Common Name is not available, it will use the first DNS Name:** It looks at the first DNS Name from the CSR's Subject Alternative Names (SANs).
 * **If the DNS Name is not available, it will use the first URI:** It looks at the first URI from the CSR's Subject Alternative Names (SANs).
 * **If the URI is not available, it will use the first IP Address:** It looks at the first IP Address from the CSR's Subject Alternative Names (SANs).
-* **If none of the above are available, it will return an error. 
-
+* **If none of the above are available, it will return an error.
